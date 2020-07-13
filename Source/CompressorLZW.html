@@ -1,0 +1,268 @@
+<html>
+<body>
+
+	<label for="textareaTextToCompress">Data to Compress as Text:</label>
+	<button onclick="buttonDemoTextToCompress_Clicked();">Demo</button>
+	<button onclick="buttonClearTextToCompress_Clicked();">Clear</button>
+	<br />
+	<textarea id="textareaTextToCompress" cols="80" rows="8"></textarea>
+	<br />
+
+	<button onclick="buttonConvertTextToBytes_Clicked();">Convert Text to Bytes v</button>
+	<button onclick="buttonConvertBytesToText_Clicked();">^ Convert Bytes to Text</button>
+	<br />
+
+	<label for="textareaBytesToCompress">Data to Compress as Bytes:</label>
+	<button onclick="buttonClearBytesToCompress_Clicked();">Clear</button>
+	<button onclick="buttonSaveBytesToCompressToFile_Clicked();">Save to File</button>
+	<label for="inputLoadBytesToCompressFromFile_Clicked">Load from File:</label>
+	<input
+		id="inputLoadBytesToCompressFromFile_Clicked"
+		type="file"
+		onchange="inputLoadBytesToCompressFromFile_Changed(this);"
+	/>
+	<br />
+	<textarea id="textareaBytesToCompress" cols="80" rows="8"></textarea>
+	<br />
+
+	<button onclick="buttonCompress_Clicked();">Compress v</button>
+	<button onclick="buttonDecompress_Clicked();">^ Decompress</button>
+	<br />
+
+	<label for="textareaDataCompressed">Data Compressed as Bytes:</label>
+	<button onclick="buttonClearDataCompressed_Clicked();">Clear</button>
+	<button onclick="buttonSaveDataCompressedToFile_Clicked();">Save to File</button>
+	<label for="inputLoadBytesToCompressFromFile_Clicked">Load from File:</label>
+	<input
+		id="inputLoadBytesCompressedFromFile_Clicked"
+		type="file"
+		onchange="inputLoadBytesCompressedFromFile_Changed(this);"
+	/>
+	<br />
+	<textarea id="textareaDataCompressed" cols="80" rows="8"></textarea>
+	<br />
+
+
+<script type="text/javascript">
+
+// UI events.
+
+function buttonClearBytesToCompress_Clicked()
+{
+	var textareaBytesToCompress =
+		document.getElementById("textareaBytesToCompress");
+
+	textareaBytesToCompress.value = "";
+}
+
+function buttonClearDataCompressed_Clicked()
+{
+	var textareaDataCompressed =
+		document.getElementById("textareaDataCompressed");
+
+	textareaDataCompressed.value = "";
+}
+
+function buttonClearTextToCompress_Clicked()
+{
+	var textareaTextToCompress =
+		document.getElementById("textareaTextToCompress");
+
+	textareaTextToCompress.value = "";
+}
+
+function buttonCompress_Clicked()
+{
+	var d = document;
+
+	var textareaBytesToCompress =
+		d.getElementById("textareaBytesToCompress");
+	var bytesToCompress = 
+		textareaBytesToCompress.value.split(" ").map
+		(
+			x => parseInt(x, 16)
+		);
+
+	var compressor = new CompressorLZW();
+
+	var bytesCompressed =
+		compressor.compressBytes(bytesToCompress);
+
+	var bytesCompressedAsHexadecimals =
+		bytesCompressed.map(x => x.toString(16));
+
+	var bytesCompressedAsString = bytesCompressedAsHexadecimals.join(" ");
+
+	var textareaDataCompressed =
+		d.getElementById("textareaDataCompressed");
+	textareaDataCompressed.value = bytesCompressedAsString;
+}
+
+function buttonConvertBytesToText_Clicked()
+{
+	var d = document;
+
+	var textareaBytesToCompress =
+		d.getElementById("textareaBytesToCompress");
+	var bytesToCompressAsString = textareaBytesToCompress.value;
+	var bytesToCompress =
+		bytesToCompressAsString.split(" ").map(x => parseInt(x, 16));
+
+	var textToCompress = "";
+	bytesToCompress.forEach(x => textToCompress += String.fromCharCode(x));
+
+	var textareaTextToCompress =
+		d.getElementById("textareaTextToCompress");
+	textareaTextToCompress.value = textToCompress;
+}
+
+function buttonConvertTextToBytes_Clicked()
+{
+	var d = document;
+
+	var textareaTextToCompress =
+		d.getElementById("textareaTextToCompress");
+	var textToCompress = textareaTextToCompress.value;
+
+	var bytesToCompress = [];
+	for (var i = 0; i < textToCompress.length; i++)
+	{
+		var charAsByte = textToCompress.charCodeAt(i);
+		bytesToCompress.push(charAsByte);
+	}
+
+	var bytesToCompressAsString =
+		bytesToCompress.map(x => x.toString(16)).join(" ");
+
+	var textareaBytesToCompress =
+		d.getElementById("textareaBytesToCompress");
+	textareaBytesToCompress.value = bytesToCompressAsString;
+
+}
+
+function buttonDecompress_Clicked()
+{
+	var d = document;
+
+	var textareaDataCompressed =
+		d.getElementById("textareaDataCompressed");
+	var bytesCompressedAsString = textareaDataCompressed.value;
+	var bytesCompressedAsHexadecimals =
+		bytesCompressedAsString.split(" ");
+	var bytesCompressed =
+		bytesCompressedAsHexadecimals.map(x => parseInt(x, 16));
+
+	var compressor = new CompressorLZW();
+	var bytesDecompressed = compressor.decompressBytes
+	(
+		bytesCompressed
+	);
+	var bytesDecompressedAsHexadecimalString =
+		bytesDecompressed.map(x => x.toString(16)).join(" ")
+
+	var textareaBytesToCompress =
+		d.getElementById("textareaBytesToCompress");
+	textareaBytesToCompress.value =
+		bytesDecompressedAsHexadecimalString;
+}
+
+function buttonDemoTextToCompress_Clicked()
+{
+	var textareaTextToCompress
+		= document.getElementById("textareaTextToCompress");
+	textareaTextToCompress.value =
+		DemoData.IntroductionAndPreamble;
+}
+
+function buttonSaveBytesToCompressToFile_Clicked()
+{
+	var d = document;
+	var textareaBytesToCompress =
+		d.getElementById("textareaBytesToCompress");
+	var bytesToCompressAsHexadecimalString =
+		textareaBytesToCompress.value;
+	var bytesToCompress =
+		bytesToCompressAsHexadecimalString.split(" ").map
+		(
+			x => parseInt(x, 16)
+		);
+	var fileNameToSaveTo = "decompressed.dat"
+	new FileHelper().saveBytesToFileWithName
+	(
+		bytesToCompress, fileNameToSaveTo
+	);
+}
+
+function buttonSaveDataCompressedToFile_Clicked()
+{
+	var d = document;
+	var textareaDataCompressed =
+		d.getElementById("textareaDataCompressed");
+	var bytesCompressedAsHexadecimalString =
+		textareaDataCompressed.value;
+	var bytesCompressed =
+		bytesCompressedAsHexadecimalString.split(" ").map
+		(
+			x => parseInt(x, 16)
+		);
+	var fileNameToSaveTo = "compressed.lzw"
+	new FileHelper().saveBytesToFileWithName
+	(
+		bytesCompressed, fileNameToSaveTo
+	);
+}
+
+function inputLoadBytesCompressedFromFile_Changed(inputLoadBytesCompressedFromFile)
+{
+	var systemFileToLoad = inputLoadBytesCompressedFromFile.files[0];
+	if (systemFileToLoad != null)
+	{
+		new FileHelper().loadFileAsBytes
+		(
+			systemFileToLoad,
+			(fileAsBytes) => // callback
+			{
+				var d = document;
+				var textareaDataCompressed =
+					d.getElementById("textareaDataCompressed");
+				var fileAsHexString = fileAsBytes.map
+				(
+					x => x.toString(16)
+				).join(" ");
+				textareaDataCompressed.value = fileAsHexString;
+			}
+		);
+	}
+}
+
+function inputLoadBytesToCompressFromFile_Changed(inputLoadBytesToCompressFromFile)
+{
+	var systemFileToLoad = inputLoadBytesToCompressFromFile.files[0];
+	if (systemFileToLoad != null)
+	{
+		new FileHelper().loadFileAsBytes
+		(
+			systemFileToLoad,
+			(fileAsBytes) => // callback
+			{
+				var d = document;
+				var textareaBytesToCompress =
+					d.getElementById("textareaBytesToCompress");
+				var fileAsHexString = fileAsBytes.map
+				(
+					x => x.toString(16)
+				).join(" ");
+				textareaBytesToCompress.value = fileAsHexString;
+			}
+		);
+	}
+}
+</script>
+
+<script type="text/javascript" src="BitStream.js"></script>
+<script type="text/javascript" src="CompressorLZW.js"></script>
+<script type="text/javascript" src="DemoData.js"></script>
+<script type="text/javascript" src="FileHelper.js"></script>
+
+</body>
+</html>
