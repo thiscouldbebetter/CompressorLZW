@@ -108,8 +108,7 @@ function buttonConvertBytesToText_Clicked()
 	var bytesToCompress =
 		bytesToCompressAsString.split(" ").map(x => parseInt(x, 16));
 
-	var textToCompress = "";
-	bytesToCompress.forEach(x => textToCompress += String.fromCharCode(x));
+	var textToCompress = bytesToCompress.map(x => String.fromCharCode(x)).join("");
 
 	var textareaTextToCompress =
 		d.getElementById("textareaTextToCompress");
@@ -158,7 +157,7 @@ function buttonDecompress_Clicked()
 		bytesCompressed
 	);
 	var bytesDecompressedAsHexadecimalString =
-		bytesDecompressed.map(x => x.toString(16)).join(" ")
+		bytesDecompressed.map(x => x.toString(16).padStart(2, "0") ).join(" ")
 
 	var textareaBytesToCompress =
 		d.getElementById("textareaBytesToCompress");
@@ -227,7 +226,7 @@ function inputLoadBytesCompressedFromFile_Changed(inputLoadBytesCompressedFromFi
 					d.getElementById("textareaDataCompressed");
 				var fileAsHexString = fileAsBytes.map
 				(
-					x => x.toString(16)
+					x => x.toString(16).padStart(2, "0")
 				).join(" ");
 				textareaDataCompressed.value = fileAsHexString;
 			}
@@ -250,7 +249,7 @@ function inputLoadBytesToCompressFromFile_Changed(inputLoadBytesToCompressFromFi
 					d.getElementById("textareaBytesToCompress");
 				var fileAsHexString = fileAsBytes.map
 				(
-					x => x.toString(16)
+					x => x.toString(16).padStart(2, "0")
 				).join(" ");
 				textareaBytesToCompress.value = fileAsHexString;
 			}
