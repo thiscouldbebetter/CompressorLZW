@@ -89,7 +89,7 @@ function buttonCompress_Clicked()
 		compressor.compressBytes(bytesToCompress);
 
 	var bytesCompressedAsHexadecimals =
-		bytesCompressed.map(x => x.toString(16));
+		bytesCompressed.map(x => x.toString(16).padStart(2, "0") );
 
 	var bytesCompressedAsString = bytesCompressedAsHexadecimals.join(" ");
 
@@ -132,7 +132,7 @@ function buttonConvertTextToBytes_Clicked()
 	}
 
 	var bytesToCompressAsString =
-		bytesToCompress.map(x => x.toString(16)).join(" ");
+		bytesToCompress.map(x => x.toString(16).padStart(2, "0") ).join(" ");
 
 	var textareaBytesToCompress =
 		d.getElementById("textareaBytesToCompress");
@@ -260,6 +260,8 @@ function inputLoadBytesToCompressFromFile_Changed(inputLoadBytesToCompressFromFi
 </script>
 
 <script type="text/javascript" src="BitStream.js"></script>
+<script type="text/javascript" src="ByteStreamFromBytes.js"></script>
+<script type="text/javascript" src="ByteStreamFromString.js"></script>
 <script type="text/javascript" src="CompressorLZW.js"></script>
 <script type="text/javascript" src="DemoData.js"></script>
 <script type="text/javascript" src="FileHelper.js"></script>

@@ -1,30 +1,27 @@
 
 class BitStream
 {
-	constructor(bytes)
+	static BitsPerByte = 8;
+	static NaturalLogarithmOf2 = Math.log(2);
+
+	constructor(byteStream)
 	{
-		if (bytes == null)
+		if (byteStream == null)
 		{
-			bytes = [];
+			byteStream = new ByteStreamFromBytes([]);
 		}
 
-		this.bytes = bytes;
+		this.byteStream = byteStream;
 		this.byteOffset = 0;
 		this.bitOffsetWithinByteCurrent = 0;
 		this.byteCurrent = 0;
 	}
-
-	// constants
-
-	static BitsPerByte = 8;
-	static NaturalLogarithmOf2 = Math.log(2);
 
 	// static methods
 
 	static convertNumberToBitString(numberToConvert)
 	{
 		var returnValue = "";
-
 		var numberOfBitsNeeded = Math.ceil
 		(
 			Math.log(numberToConvert + 1)
@@ -46,51 +43,41 @@ class BitStream
 	}
 
 	// instance methods
-
 	close()
 	{
 		if (this.bitOffsetWithinByteCurrent > 0)
 		{
-			this.bytes.push(this.byteCurrent);
+			this.byteStream.writeByte(this.byteCurrent);
 		}
-	}
-
-	hasMoreBits()
-	{
-		// todo
-		return (this.byteIndexCurrent < this.bytes.length);
 	}
 
 	readBit()
 	{
-		this.byteCurrent = this.bytes[this.byteOffset];
+		this.byteCurrent = this.byteStream.peekByteCurrent();
 		var returnValue = (this.byteCurrent >> this.bitOffsetWithinByteCurrent) & 1;
-
 		this.bitOffsetWithinByteCurrent++;
 
 		if (this.bitOffsetWithinByteCurrent >= BitStream.BitsPerByte)
 		{
 			this.byteOffset++;
 			this.bitOffsetWithinByteCurrent = 0;
-			if (this.byteOffset < this.bytes.length)
+			if (this.byteStream.hasMoreBytes())
 			{
-				this.byteCurrent = this.bytes[this.byteOffset];
+				this.byteCurrent = this.byteStream.readByte();
 			}
 			else
 			{
 				this.hasMoreBits = false;
 			}
 		}
-
 		return returnValue;
 	}
-	
+
 	readNumber(numberOfBitsInNumber)
 	{
 		var returnValue = 0;
 
-		for (var i = 0; i < numberOfBitsInNumber; i++)
-		{
+		for (var i = 0; i < numberOfBitsInNumber; i++) {
 			var bitRead = this.readBit();
 			returnValue |= (bitRead << i);
 		}
@@ -101,12 +88,11 @@ class BitStream
 	writeBit(bitToWrite)
 	{
 		this.byteCurrent |= (bitToWrite << this.bitOffsetWithinByteCurrent);
-
 		this.bitOffsetWithinByteCurrent++;
 
 		if (this.bitOffsetWithinByteCurrent >= BitStream.BitsPerByte)
 		{
-			this.bytes.push(this.byteCurrent);
+			this.byteStream.writeByte(this.byteCurrent);
 			this.byteOffset++;
 			this.bitOffsetWithinByteCurrent = 0;
 			this.byteCurrent = 0;
